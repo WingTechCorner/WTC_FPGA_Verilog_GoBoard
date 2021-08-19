@@ -3,7 +3,7 @@
   * from the two 7-segment LED Displays
   *
 */
-module switches_to_leds
+module top
   (input i_Clk,
    input i_Switch_1,  
    input i_Switch_2,
