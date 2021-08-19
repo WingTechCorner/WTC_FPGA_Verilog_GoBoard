@@ -1,15 +1,10 @@
-///////////////////////////////////////////////////////////////////////////////
-// File downloaded from http://www.nandland.com
-///////////////////////////////////////////////////////////////////////////////
-// This file converts an input binary number into an output which can get sent
-// to a 7-Segment LED.  7-Segment LEDs have the ability to display all decimal
-// numbers 0-9 as well as hex digits A, B, C, D, E and F.  The input to this
-// module is a 4-bit binary number.  This module will properly drive the
-// individual segments of a 7-Segment LED in order to display the digit.
-// Hex encoding table can be viewed at:
-// http://en.wikipedia.org/wiki/Seven-segment_display
-///////////////////////////////////////////////////////////////////////////////
- 
+/*
+Based on file originally downloaded from http://www.nandland.com
+
+Modified to add additional display modes.  - Wing Tech Corner
+
+*/
+
 module Binary_To_7Segment 
   (
    input       i_Clk,

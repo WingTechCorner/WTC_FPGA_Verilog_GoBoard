@@ -1,3 +1,6 @@
+# Make file to automate and split up tasks related to the building of the verilog files.
+# Commands originally from Nandland.com's build files.
+
 FILE = switches_to_leds
 
 all : build prog

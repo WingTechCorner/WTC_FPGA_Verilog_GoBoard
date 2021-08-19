@@ -1,3 +1,8 @@
+/*
+  * Verilog module to run some tests against the GoBoard to generate responses
+  * from the two 7-segment LED Displays
+  *
+*/
 module switches_to_leds
   (input i_Clk,
    input i_Switch_1,  
