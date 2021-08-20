@@ -97,7 +97,8 @@ assign o_LED_2 = i_Switch_2;
 assign o_LED_3 = i_Switch_3;
 assign o_LED_4 = i_Switch_4;
 
-  Binary_To_7Segment Inst1
+//  Binary_To_7Segment Inst1
+  wtc_7seg Inst1
     (.i_Clk(i_Clk),
      .i_mode(2'b11),
      .i_Binary_Num(r_Count[7:4]),
@@ -110,7 +111,8 @@ assign o_LED_4 = i_Switch_4;
      .o_Segment_G(w_Segment1_G)
      );
 
-  Binary_To_7Segment Inst2
+//  Binary_To_7Segment Inst2
+  wtc_7seg Inst2
     (.i_Clk(i_Clk),
      .i_mode(2'b11),
      .i_Binary_Num(r_Count[3:0]),

@@ -7,6 +7,7 @@
 all : clean build prog
 
 build :
+	mkdir -p artifacts  output
 	yosys -p "synth_ice40 -top top -json artifacts/output.json" top.v libs/*.v
 	nextpnr-ice40 --hx1k --package vq100 --pcf libs/goboard.pcf --json artifacts/output.json --asc artifacts/output.asc
 	icepack artifacts/output.asc output/output.bin
