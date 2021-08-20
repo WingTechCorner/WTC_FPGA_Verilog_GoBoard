@@ -35,6 +35,9 @@ module wtc_7seg
   always @(posedge i_Clk)
   begin
 
+    // ***************************************************
+
+    // Handle Segment A 
     if ( r_Segment_A_counter > r_Segment_A_peripd )
     begin
       r_Hex_Encoding_state[6] <= ~r_Hex_Encoding_state[6];
@@ -45,9 +48,73 @@ module wtc_7seg
       r_Segment_A_counter <= r_Segment_A_counter + 1;
     end
 
+    // Handle Segment B 
+    if ( r_Segment_B_counter > r_Segment_B_peripd )
+    begin
+      r_Hex_Encoding_state[5] <= ~r_Hex_Encoding_state[5];
+      r_Segment_B_counter <= 0;
+    end
+    else
+    begin
+      r_Segment_B_counter <= r_Segment_B_counter + 1;
+    end
 
+    // Handle Segment C 
+    if ( r_Segment_C_counter > r_Segment_C_peripd )
+    begin
+      r_Hex_Encoding_state[4] <= ~r_Hex_Encoding_state[4];
+      r_Segment_C_counter <= 0;
+    end
+    else
+    begin
+      r_Segment_C_counter <= r_Segment_C_counter + 1;
+    end
 
+    // Handle Segment D 
+    if ( r_Segment_D_counter > r_Segment_D_peripd )
+    begin
+      r_Hex_Encoding_state[3] <= ~r_Hex_Encoding_state[3];
+      r_Segment_D_counter <= 0;
+    end
+    else
+    begin
+      r_Segment_D_counter <= r_Segment_D_counter + 1;
+    end
 
+    // Handle Segment E 
+    if ( r_Segment_E_counter > r_Segment_E_peripd )
+    begin
+      r_Hex_Encoding_state[2] <= ~r_Hex_Encoding_state[2];
+      r_Segment_E_counter <= 0;
+    end
+    else
+    begin
+      r_Segment_E_counter <= r_Segment_E_counter + 1;
+    end
+
+    // Handle Segment F 
+    if ( r_Segment_F_counter > r_Segment_F_peripd )
+    begin
+      r_Hex_Encoding_state[1] <= ~r_Hex_Encoding_state[1];
+      r_Segment_F_counter <= 0;
+    end
+    else
+    begin
+      r_Segment_F_counter <= r_Segment_F_counter + 1;
+    end
+
+    // Handle Segment G 
+    if ( r_Segment_G_counter > r_Segment_G_peripd )
+    begin
+      r_Hex_Encoding_state[0] <= ~r_Hex_Encoding_state[0];
+      r_Segment_G_counter <= 0;
+    end
+    else
+    begin
+      r_Segment_G_counter <= r_Segment_G_counter + 1;
+    end
+
+    // ***************************************************
 
     r_Segment_A <= r_Hex_Encoding_state[6];
     r_Segment_B <= r_Hex_Encoding_state[5];
