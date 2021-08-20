@@ -4,7 +4,8 @@
   *
 */
 module top
-  (input i_Clk,
+  (
+   input i_Clk,
    input i_Switch_1,  
    input i_Switch_2,
    input i_Switch_3,
@@ -28,14 +29,13 @@ module top
    output o_Segment2_F,
    output o_Segment2_G
  );
-   
-  reg r_LED_1 = 1'b0;
-  reg r_Switch_1 = 1'b0;
-  reg r_Switch_2 = 1'b0;
+  
 
-  reg [7:0] r_Count = 8'b00000000;
-  reg [31:0] ticks  = 0;
-  reg [31:0] period = 500000;
+  wire w_Switch_1;
+  wire w_Switch_2;
+  wire w_Switch_3;
+  wire w_Switch_4;
+
   wire w_Segment1_A;
   wire w_Segment1_B;
   wire w_Segment1_C;
@@ -52,50 +52,13 @@ module top
   wire w_Segment2_F;
   wire w_Segment2_G;
 
-  Debounce_Switch Debounce_Inst_1 (.i_Clk(i_Clk), .i_Switch(i_Switch_1), .o_Switch(w_Switch_1));
-  Debounce_Switch Debounce_Inst_2 (.i_Clk(i_Clk), .i_Switch(i_Switch_2), .o_Switch(w_Switch_2));
-
   always @(posedge i_Clk)
   begin
-    r_Switch_1 <= i_Switch_1;
-    r_Switch_2 <= i_Switch_2;
 
-    if ( ticks > period ) begin
-      r_Count <= r_Count + 1;
-      ticks <= 0;
-    end
-    else begin
-      ticks <= ticks + 1;
-    end
-
-    if ( i_Switch_1 == 1'b0 && r_Switch_1 == 1'b1 )
-    begin
-      r_LED_1 <= ~r_LED_1;
-      if ( r_Count == 99 ) begin
-        r_Count <= 0;
-      end
-      else begin
-        r_Count <= r_Count + 1;
-      end 
-    end
-
-
-    if ( i_Switch_2 == 1'b0 && r_Switch_2 == 1'b1 )
-    begin
-      r_LED_1 <= ~r_LED_1;
-      if ( r_Count == 0 ) begin
-        r_Count <= 99;
-      end
-      else begin
-        r_Count <= r_Count - 1;
-      end
-    end
-  end
-
-assign o_LED_1 = r_LED_1;
-assign o_LED_2 = i_Switch_2;
-assign o_LED_3 = i_Switch_3;
-assign o_LED_4 = i_Switch_4;
+  assign o_LED_1 = r_LED_1;
+  assign o_LED_2 = i_Switch_2;
+  assign o_LED_3 = i_Switch_3;
+  assign o_LED_4 = i_Switch_4;
 
 //  Binary_To_7Segment Inst1
   wtc_7seg Inst1
