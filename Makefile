@@ -4,6 +4,7 @@
 # ./artifacts/* 	- all produced artifacts in the artifacts folder
 # ./tb/* 					- testbenches
 # ./output/*      - output bin files
+#
 all : clean build prog
 
 build :

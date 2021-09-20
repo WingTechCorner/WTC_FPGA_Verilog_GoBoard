@@ -5,6 +5,7 @@
 */
 module top
   (input i_Clk,
+   input io_PMOD_1_clk,
    input i_Switch_1,  
    input i_Switch_2,
    input i_Switch_3,
@@ -32,10 +33,14 @@ module top
   reg r_LED_1 = 1'b0;
   reg r_Switch_1 = 1'b0;
   reg r_Switch_2 = 1'b0;
-
   reg [7:0] r_Count = 8'b00000000;
   reg [31:0] ticks  = 0;
   reg [31:0] period = 500000;
+
+  reg [63:0] mhz_counter ;
+  reg [63:0] khz_counter ;
+  reg [63:0] hz_counter  ;
+
   wire w_Segment1_A;
   wire w_Segment1_B;
   wire w_Segment1_C;
@@ -52,6 +57,13 @@ module top
   wire w_Segment2_F;
   wire w_Segment2_G;
 
+
+  // Setup clock counters ( timers? )
+  clk_cnt mhz_clock(.in_sys_clk( i_Clk ), .in_ext_clk(io_PMOD_1_clk), .in_reset(reset_clocks), .in_period(25),       .out_output(mhz_counter));
+  clk_cnt khz_clock(.in_sys_clk( i_Clk ), .in_ext_clk(io_PMOD_1_clk), .in_reset(reset_clocks), .in_period(25000),    .out_output(khz_counter));
+  clk_cnt hz_clock(.in_sys_clk( i_Clk ),  .in_ext_clk(io_PMOD_1_clk), .in_reset(reset_clocks), .in_period(25000000), .out_output(hz_counter));
+
+  // Debounce switch inputs
   Debounce_Switch Debounce_Inst_1 (.i_Clk(i_Clk), .i_Switch(i_Switch_1), .o_Switch(w_Switch_1));
   Debounce_Switch Debounce_Inst_2 (.i_Clk(i_Clk), .i_Switch(i_Switch_2), .o_Switch(w_Switch_2));
 
