@@ -1,156 +1,140 @@
-/*
-  * Verilog module to run some tests against the GoBoard to generate responses
-  * from the two 7-segment LED Displays
-  *
-*/
-module top
-  (input i_Clk,
-   input io_PMOD_1_clk,
-   input i_Switch_1,  
-   input i_Switch_2,
-   input i_Switch_3,
-   input i_Switch_4,
-   output o_LED_1,
-   output o_LED_2,
-   output o_LED_3,
-   output o_LED_4,
-   output o_Segment1_A,
-   output o_Segment1_B,
-   output o_Segment1_C,
-   output o_Segment1_D,
-   output o_Segment1_E,
-   output o_Segment1_F,
-   output o_Segment1_G,
-   output o_Segment2_A,
-   output o_Segment2_B,
-   output o_Segment2_C,
-   output o_Segment2_D,
-   output o_Segment2_E,
-   output o_Segment2_F,
-   output o_Segment2_G
- );
+module    top
+(
+    input i_clk,
+    input io_pmod_1_clk,
+    input i_switch_1,
+    input i_switch_2,
+    input i_switch_3,
+    input i_switch_4,
+   output o_led_1,
+   output o_led_2,
+   output o_led_3,
+   output o_led_4,
+   output o_segment1_a,
+   output o_segment1_b,
+   output o_segment1_c,
+   output o_segment1_d,
+   output o_segment1_e,
+   output o_segment1_f,
+   output o_segment1_g,
+   output o_segment2_a,
+   output o_segment2_b,
+   output o_segment2_c,
+   output o_segment2_d,
+   output o_segment2_e,
+   output o_segment2_f,
+   output o_segment2_g
+);
 
-  reg MHZ = 1;
-  reg KHZ = 2;
-  reg HZ  = 3;
-  reg [3:0] r_display_mode = HZ;
-  reg [6:0] r_display_dummy = 1;
-  reg [7:0] r_digits = 8'b00000000;
-  reg [7:0] r_display_value =0;
-  reg [63:0] r_mhz_counter ;
-  reg [63:0] r_khz_counter ;
-  reg [63:0] r_hz_counter  ;
 
-  wire i_Clk;
-  wire io_PMOD_1_clk;
-  wire w_Segment1_A;
-  wire w_Segment1_B;
-  wire w_Segment1_C;
-  wire w_Segment1_D;
-  wire w_Segment1_E;
-  wire w_Segment1_F;
-  wire w_Segment1_G;
+  // connections and registers
+  wire w_clk;
+  wire w_pmod_1_clk;
+  wire w_extclk;
+
+  wire w_led_1;
+  wire w_led_2;
+  wire w_led_3;
+  wire w_led_4;
+
+  wire w_switch_1;
+  wire w_switch_2;
+  wire w_switch_3;
+  wire w_switch_4;
+
+  wire r_switch_1;
+  wire r_switch_2;
+  wire r_switch_3;
+  wire r_switch_4;
+
+  wire w_segment1_a;
+  wire w_segment1_b;
+  wire w_segment1_c;
+  wire w_segment1_d;
+  wire w_segment1_e;
+  wire w_segment1_f;
+  wire w_segment1_g;
   
-  wire w_Segment2_A;
-  wire w_Segment2_B;
-  wire w_Segment2_C;
-  wire w_Segment2_D;
-  wire w_Segment2_E;
-  wire w_Segment2_F;
-  wire w_Segment2_G;
+  wire w_segment2_a;
+  wire w_segment2_b;
+  wire w_segment2_c;
+  wire w_segment2_d;
+  wire w_segment2_e;
+  wire w_segment2_f;
+  wire w_segment2_g;
 
-  // Setup clock counters ( timers? )
-  clk_cnt mhz_clock(.in_sys_clk( i_Clk ), .in_ext_clk(io_PMOD_1_clk), .in_reset(reset_clocks), .in_period(25),       .out_output(r_mhz_counter));
-  clk_cnt khz_clock(.in_sys_clk( i_Clk ), .in_ext_clk(io_PMOD_1_clk), .in_reset(reset_clocks), .in_period(25000),    .out_output(r_khz_counter));
-  clk_cnt hz_clock(.in_sys_clk( i_Clk ),  .in_ext_clk(i_Clk), .in_reset(reset_clocks), .in_period(25000000), .out_output(r_hz_counter));
+  reg [31:0] period = 0;
+  reg [3:0] r_left_digit, r_right_digit;
 
-  always @(posedge i_Clk)
+  // module debounce_switch (input i_clk, input i_switch, output o_switch);
+  debounce_switch sw1( .i_clk( i_clk ), .i_switch( w_switch1 ), .o_switch( r_switch_1 ));
+  debounce_switch sw2( .i_clk( i_clk ), .i_switch( w_switch2 ), .o_switch( r_switch_2 ));
+  debounce_switch sw3( .i_clk( i_clk ), .i_switch( w_switch3 ), .o_switch( r_switch_3 ));
+  debounce_switch sw4( .i_clk( i_clk ), .i_switch( w_switch4 ), .o_switch( r_switch_4 ));
+
+  always @(posedge w_clk)
   begin
-    case (r_display_mode)
-      MHZ : 
+    if ( period > 12000000 )
       begin
-        if ( r_mhz_counter > 99 ) begin
-          r_display_value = 0;
-        end
-        else
-        begin
-          r_display_value = r_mhz_counter;
-        end
+        r_left_digit = r_left_digit + 1;
       end
-
-      KHZ :
-      begin
-        if ( r_khz_counter > 99 ) begin
-          r_display_value = 0;
-        end
-        else
-        begin
-          r_display_value = r_khz_counter;
-        end
-      end
-
-      HZ  : 
-      begin
-        if ( r_hz_counter > 99 ) begin
-          r_display_value = 0;
-        end
-        else
-        begin
-          r_display_value = r_hz_counter;
-        end
-      end
-
-      default : 
-      begin
-        begin
-          r_display_value = r_display_dummy;
-        end
-      end
-    endcase
   end
 
-//  Binary_To_7Segment Inst1
-  Binary_To_7Segment Inst1
-    (.i_Clk(i_Clk),
-     .i_mode(2'b01),
-     .i_Binary_Num(r_display_value[7:4]),
-     .o_Segment_A(w_Segment1_A),
-     .o_Segment_B(w_Segment1_B),
-     .o_Segment_C(w_Segment1_C),
-     .o_Segment_D(w_Segment1_D),
-     .o_Segment_E(w_Segment1_E),
-     .o_Segment_F(w_Segment1_F),
-     .o_Segment_G(w_Segment1_G)
-     );
+  // processing 7 segment display updates
+  binary_to_7segment m_left_digit(
+    .i_clk( i_clk ),
+    .i_mode( 0 ),
+    .i_binary_num( r_left_digit ),
+    .o_segment_a(w_segment1_a),
+    .o_segment_b(w_segment1_b),
+    .o_segment_c(w_segment1_c),
+    .o_segment_d(w_segment1_d),
+    .o_segment_e(w_segment1_e),
+    .o_segment_f(w_segment1_f),
+    .o_segment_g(w_segment1_g)
+   );
 
-//  Binary_To_7Segment Inst2
-  Binary_To_7Segment Inst2
-    (.i_Clk(i_Clk),
-     .i_mode(2'b00),
-     .i_Binary_Num(r_display_value[3:0]),
-     .o_Segment_A(w_Segment2_A),
-     .o_Segment_B(w_Segment2_B),
-     .o_Segment_C(w_Segment2_C),
-     .o_Segment_D(w_Segment2_D),
-     .o_Segment_E(w_Segment2_E),
-     .o_Segment_F(w_Segment2_F),
-     .o_Segment_G(w_Segment2_G)
-     );
+  binary_to_7segment m_right_digit(
+    .i_clk( i_clk ),
+    .i_mode( 0 ),
+    .i_binary_num( r_right_digit ),
+    .o_segment_a(w_segment2_a),
+    .o_segment_b(w_segment2_b),
+    .o_segment_c(w_segment2_c),
+    .o_segment_d(w_segment2_d),
+    .o_segment_e(w_segment2_e),
+    .o_segment_f(w_segment2_f),
+    .o_segment_g(w_segment2_g)
+   );
 
-  assign o_Segment1_A = ~w_Segment1_A;
-  assign o_Segment1_B = ~w_Segment1_B;
-  assign o_Segment1_C = ~w_Segment1_C;
-  assign o_Segment1_D = ~w_Segment1_D;
-  assign o_Segment1_E = ~w_Segment1_E;
-  assign o_Segment1_F = ~w_Segment1_F;
-  assign o_Segment1_G = ~w_Segment1_G;
 
-  assign o_Segment2_A = ~w_Segment2_A;
-  assign o_Segment2_B = ~w_Segment2_B;
-  assign o_Segment2_C = ~w_Segment2_C;
-  assign o_Segment2_D = ~w_Segment2_D;
-  assign o_Segment2_E = ~w_Segment2_E;
-  assign o_Segment2_F = ~w_Segment2_F;
-  assign o_Segment2_G = ~w_Segment2_G;
+
+  // assigning connections
+  assign w_clk        = i_clk;
+  assign i_extclk     = io_pmod_1_clk;
+
+	assign w_switch_1   = i_switch_1;
+	assign w_switch_2   = i_switch_1;
+	assign w_switch_3   = i_switch_1;
+	assign w_switch_4   = i_switch_1;
+	assign o_led_1      = w_led_1;
+	assign o_led_2      = w_led_1;
+	assign o_led_3      = w_led_1;
+	assign o_led_4      = w_led_1;
+
+  assign o_segment1_a = ~w_segment1_a;
+  assign o_segment1_b = ~w_segment1_b;
+  assign o_segment1_c = ~w_segment1_c;
+  assign o_segment1_d = ~w_segment1_d;
+  assign o_segment1_e = ~w_segment1_e;
+  assign o_segment1_f = ~w_segment1_f;
+  assign o_segment1_g = ~w_segment1_g;
+  assign o_segment2_a = ~w_segment2_a;
+  assign o_segment2_b = ~w_segment2_b;
+  assign o_segment2_c = ~w_segment2_c;
+  assign o_segment2_d = ~w_segment2_d;
+  assign o_segment2_e = ~w_segment2_e;
+  assign o_segment2_f = ~w_segment2_f;
+  assign o_segment2_g = ~w_segment2_g;
 
 endmodule

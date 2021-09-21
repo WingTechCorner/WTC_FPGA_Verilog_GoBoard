@@ -1,4 +1,5 @@
 module clk_cnt (input in_sys_clk, input in_ext_clk, input in_reset, input in_period ,output out_output);
+
   wire sys_clk;
   wire ext_clk;
   wire reset;
@@ -6,7 +7,7 @@ module clk_cnt (input in_sys_clk, input in_ext_clk, input in_reset, input in_per
 
   reg [63:0] ext_ticks, sys_ticks, out_counter;
 
-  // Tick out_counters for both internal and external clock
+  // tick out_counters for both internal and external clock
   always @(posedge sys_clk)
   begin
     sys_ticks = sys_ticks + 1;
@@ -17,11 +18,11 @@ module clk_cnt (input in_sys_clk, input in_ext_clk, input in_reset, input in_per
     ext_ticks = ext_ticks + 1;
   end
 
-  // When sys_ticks is above the provided period,
+  // when sys_ticks is above the provided period,
   //
   always @(posedge sys_clk)
   begin
-    if ( reset == HIGH)
+    if ( reset == high)
     begin
       out_counter = 0;
       ext_ticks = 0;
