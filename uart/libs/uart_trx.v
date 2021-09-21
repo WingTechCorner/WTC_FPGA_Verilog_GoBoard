@@ -67,6 +67,7 @@ module uart_tx_8n1 (
         if (state == STATE_TXDONE) begin
             txdone <= 1'b1;
             state <= STATE_IDLE;
+            senddata <= 1'b0;
         end
 
     end

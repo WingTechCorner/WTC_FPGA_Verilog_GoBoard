@@ -8,7 +8,6 @@ module top (
     ftdi_tx, 
     );
 
-
     /* Clock input */
     input hwclk;
 
@@ -39,14 +38,24 @@ module top (
 
     // Note: could also use "0" or "9" below, but I wanted to
     // be clear about what the actual binary value is.
-    parameter ASCII_0 = 8'd48;
-    parameter ASCII_9 = 8'd57;
+    parameter ASCII_0  = 8'd48;
+    parameter ASCII_1  = 8'd49;
+    parameter ASCII_2  = 8'd50;
+    parameter ASCII_3  = 8'd51;
+    parameter ASCII_4  = 8'd52;
+    parameter ASCII_5  = 8'd53;
+    parameter ASCII_6  = 8'd54;
+    parameter ASCII_7  = 8'd55;
+    parameter ASCII_8  = 8'd56;
+    parameter ASCII_9  = 8'd57;
     parameter ASCII_LF = 8'd12;
+    parameter ASCII_CR = 8'd13;
 
     /* UART registers */
     reg [7:0] uart_txbyte = ASCII_0;
-    reg uart_send = 1'b1;
+    reg uart_send;
     wire uart_txed;
+    reg reset = 1'b1;
 
     /* LED register */
     reg ledval = 0;
@@ -97,14 +106,57 @@ module top (
         end
     end
 
-    /* Increment ASCII digit and blink LED */
-    always @ (posedge clk_1 ) begin
-        ledval <= ~ledval;
-        if (uart_txbyte == ASCII_9) begin
-            uart_txbyte <= ASCII_0;
-        end else begin
-            uart_txbyte <= uart_txbyte + 1;
-        end
-    end
 
+    always @ (posedge hwclk) begin
+      if ( reset == 1 ) begin
+        reset <= 0;
+        uart_send <= 1'b1;
+        uart_txbyte <= ASCII_0;
+        uart_txed = 1'b0;
+      end else begin
+        case (uart_txed)
+          1'b1 : begin
+            uart_txed = 0;
+            case (uart_txbyte)
+              ASCII_9 : begin
+                uart_txbyte <= ASCII_LF;
+              end
+              ASCII_LF : begin
+                uart_txbyte <= ASCII_CR;
+              end
+              ASCII_CR : begin
+                uart_txbyte <= ASCII_0;
+              end
+              ASCII_0 : begin
+                uart_txbyte <= ASCII_1;
+              end
+              ASCII_1 : begin
+                uart_txbyte <= ASCII_2;
+              end
+              ASCII_2 : begin
+                uart_txbyte <= ASCII_3;
+              end
+              ASCII_3 : begin
+                uart_txbyte <= ASCII_4;
+              end
+              ASCII_4 : begin
+                uart_txbyte <= ASCII_5;
+              end
+              ASCII_5 : begin
+                uart_txbyte <= ASCII_6;
+              end
+              ASCII_6 : begin
+                uart_txbyte <= ASCII_7;
+              end
+              ASCII_7 : begin
+                uart_txbyte <= ASCII_8;
+              end
+              ASCII_8 : begin
+                uart_txbyte <= ASCII_9;
+              end
+            endcase
+          end
+      endcase
+    end
+    end
 endmodule
