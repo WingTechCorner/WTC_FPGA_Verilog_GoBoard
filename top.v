@@ -29,18 +29,20 @@ module top
    output o_Segment2_F,
    output o_Segment2_G
  );
-   
-  reg r_LED_1 = 1'b0;
-  reg r_Switch_1 = 1'b0;
-  reg r_Switch_2 = 1'b0;
-  reg [7:0] r_Count = 8'b00000000;
-  reg [31:0] ticks  = 0;
-  reg [31:0] period = 500000;
 
-  reg [63:0] mhz_counter ;
-  reg [63:0] khz_counter ;
-  reg [63:0] hz_counter  ;
+  reg MHZ = 1;
+  reg KHZ = 2;
+  reg HZ  = 3;
+  reg [3:0] r_display_mode = HZ;
+  reg [6:0] r_display_dummy = 1;
+  reg [7:0] r_digits = 8'b00000000;
+  reg [7:0] r_display_value =0;
+  reg [63:0] r_mhz_counter ;
+  reg [63:0] r_khz_counter ;
+  reg [63:0] r_hz_counter  ;
 
+  wire i_Clk;
+  wire io_PMOD_1_clk;
   wire w_Segment1_A;
   wire w_Segment1_B;
   wire w_Segment1_C;
@@ -57,63 +59,61 @@ module top
   wire w_Segment2_F;
   wire w_Segment2_G;
 
-
   // Setup clock counters ( timers? )
-  clk_cnt mhz_clock(.in_sys_clk( i_Clk ), .in_ext_clk(io_PMOD_1_clk), .in_reset(reset_clocks), .in_period(25),       .out_output(mhz_counter));
-  clk_cnt khz_clock(.in_sys_clk( i_Clk ), .in_ext_clk(io_PMOD_1_clk), .in_reset(reset_clocks), .in_period(25000),    .out_output(khz_counter));
-  clk_cnt hz_clock(.in_sys_clk( i_Clk ),  .in_ext_clk(io_PMOD_1_clk), .in_reset(reset_clocks), .in_period(25000000), .out_output(hz_counter));
-
-  // Debounce switch inputs
-  Debounce_Switch Debounce_Inst_1 (.i_Clk(i_Clk), .i_Switch(i_Switch_1), .o_Switch(w_Switch_1));
-  Debounce_Switch Debounce_Inst_2 (.i_Clk(i_Clk), .i_Switch(i_Switch_2), .o_Switch(w_Switch_2));
+  clk_cnt mhz_clock(.in_sys_clk( i_Clk ), .in_ext_clk(io_PMOD_1_clk), .in_reset(reset_clocks), .in_period(25),       .out_output(r_mhz_counter));
+  clk_cnt khz_clock(.in_sys_clk( i_Clk ), .in_ext_clk(io_PMOD_1_clk), .in_reset(reset_clocks), .in_period(25000),    .out_output(r_khz_counter));
+  clk_cnt hz_clock(.in_sys_clk( i_Clk ),  .in_ext_clk(i_Clk), .in_reset(reset_clocks), .in_period(25000000), .out_output(r_hz_counter));
 
   always @(posedge i_Clk)
   begin
-    r_Switch_1 <= i_Switch_1;
-    r_Switch_2 <= i_Switch_2;
-
-    if ( ticks > period ) begin
-      r_Count <= r_Count + 1;
-      ticks <= 0;
-    end
-    else begin
-      ticks <= ticks + 1;
-    end
-
-    if ( i_Switch_1 == 1'b0 && r_Switch_1 == 1'b1 )
-    begin
-      r_LED_1 <= ~r_LED_1;
-      if ( r_Count == 99 ) begin
-        r_Count <= 0;
+    case (r_display_mode)
+      MHZ : 
+      begin
+        if ( r_mhz_counter > 99 ) begin
+          r_display_value = 0;
+        end
+        else
+        begin
+          r_display_value = r_mhz_counter;
+        end
       end
-      else begin
-        r_Count <= r_Count + 1;
-      end 
-    end
 
+      KHZ :
+      begin
+        if ( r_khz_counter > 99 ) begin
+          r_display_value = 0;
+        end
+        else
+        begin
+          r_display_value = r_khz_counter;
+        end
+      end
 
-    if ( i_Switch_2 == 1'b0 && r_Switch_2 == 1'b1 )
-    begin
-      r_LED_1 <= ~r_LED_1;
-      if ( r_Count == 0 ) begin
-        r_Count <= 99;
+      HZ  : 
+      begin
+        if ( r_hz_counter > 99 ) begin
+          r_display_value = 0;
+        end
+        else
+        begin
+          r_display_value = r_hz_counter;
+        end
       end
-      else begin
-        r_Count <= r_Count - 1;
+
+      default : 
+      begin
+        begin
+          r_display_value = r_display_dummy;
+        end
       end
-    end
+    endcase
   end
 
-assign o_LED_1 = r_LED_1;
-assign o_LED_2 = i_Switch_2;
-assign o_LED_3 = i_Switch_3;
-assign o_LED_4 = i_Switch_4;
-
 //  Binary_To_7Segment Inst1
-  wtc_7seg Inst1
+  Binary_To_7Segment Inst1
     (.i_Clk(i_Clk),
-     .i_mode(2'b11),
-     .i_Binary_Num(r_Count[7:4]),
+     .i_mode(2'b01),
+     .i_Binary_Num(r_display_value[7:4]),
      .o_Segment_A(w_Segment1_A),
      .o_Segment_B(w_Segment1_B),
      .o_Segment_C(w_Segment1_C),
@@ -124,10 +124,10 @@ assign o_LED_4 = i_Switch_4;
      );
 
 //  Binary_To_7Segment Inst2
-  wtc_7seg Inst2
+  Binary_To_7Segment Inst2
     (.i_Clk(i_Clk),
-     .i_mode(2'b11),
-     .i_Binary_Num(r_Count[3:0]),
+     .i_mode(2'b00),
+     .i_Binary_Num(r_display_value[3:0]),
      .o_Segment_A(w_Segment2_A),
      .o_Segment_B(w_Segment2_B),
      .o_Segment_C(w_Segment2_C),
